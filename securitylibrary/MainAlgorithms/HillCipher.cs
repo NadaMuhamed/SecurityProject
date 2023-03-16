@@ -68,6 +68,7 @@ namespace SecurityLibrary
         public int Det(List<List<int>> matrix)
         {
             int n = matrix.Count, det = 0;
+
             if (n == 1)
             {
                 return matrix[0][0];
@@ -155,6 +156,15 @@ namespace SecurityLibrary
         }
         public List<List<int>> Inverse(List<List<int>> matrix)
         {
+            if(matrix.Count == 2)
+            {
+                matrix[0][1] *= -1;
+                matrix[1][0] *= -1;
+                int temp = matrix[0][0];
+                matrix[0][0] = matrix[1][1];
+                matrix[1][1] = temp;
+                return matrix;
+            }
             int det = Mod(Det(matrix),26);
             int b = 0;
             bool workable = false;
@@ -182,7 +192,7 @@ namespace SecurityLibrary
                         try
                         {
                             List<List<int>> sub = SubList(matrix, i, j);
-                            int k = Mod((sign*b*Mod(Det(sub),26)), 26);
+                            int k = Mod(sign*b*Det(sub), 26);
                             sign *= -1;
                             //while(k >= 26)
                             //{
@@ -210,45 +220,20 @@ namespace SecurityLibrary
         
         public List<int> Analyse(List<int> plainText, List<int> cipherText)
         {
-            //List<int> l1 = new List<int>() { 17,17,5};
-            //List<int> l2 = new List<int>() { 21,18,21 };
-            //List<int> l3 = new List<int>() { 2,2,19};
-            //List<int> l4 = new List<int>() {11,13,18,7,3,11,4,22,12,19,17,22};
-            //List<int> l5 = new List<int>() {17,17,5,21,18,21,2,2,19};
-
-
-            //List<List<int>> ll = new List<List<int>> { l1, l2, l3};
-
-            ////List<List<int>> filter = new List<List<int>> {l4,l4,l4};
-
-            //MatricesHelper helper = new MatricesHelper();
-            ////List<List<int>> temp = helper.GenerateMatrix(l1, 3);
-            //int x = helper.GCD(12, 9);
-            ////List<int> temp = helper.StrMap("menna");
-            //List<List<int>> temp = helper.Inverse(ll);
-            //int n = helper.Mod(-100, 26);
-            //List<int> mini_test = Decrypt(l4,l5);
-
-            MatricesHelper helper = new MatricesHelper();
-            int m = 2;
-
-            List<List<int>> pt_matrix = helper.GenerateMatrix(plainText,m);
-            List<List<int>> ct_matrix = helper.GenerateMatrix(cipherText, m);
-            pt_matrix = helper.Inverse(pt_matrix);
-            List<List<int>> key_matrix = helper.Multiply(ct_matrix, pt_matrix);
-
             List<int> key = new List<int>();
-            for (int i = 0; i < key_matrix[0].Count; i++)
-            {
-                for (int j = 0; j < key_matrix.Count; j++)
-                {
-                    key.Add(helper.Mod(key_matrix[j][i], 26));
-                }
-            }
-            return key;
-
-            //int x = helper.Det(ll);
-            throw new NotImplementedException();
+            bool flag = false;
+            for (int i = 0; i < 26; i++)
+                for (int j = 0; j < 26; j++)
+                    for (int k = 0; k < 26; k++)
+                        for (int l = 0; l < 26; l++)
+                        {
+                            key = Encrypt(plainText, new List<int> { l, k, j, i });
+                            flag = Enumerable.SequenceEqual(key, cipherText);
+                            if (flag)
+                                return new List<int> { l, k, j, i };
+                        }
+            throw new InvalidAnlysisException();
+            //throw new NotImplementedException();
         }
 
 
@@ -302,6 +287,7 @@ namespace SecurityLibrary
 
         public List<int> Analyse3By3Key(List<int> plainText, List<int> cipherText)
         {
+            
             throw new NotImplementedException();
         }
 
