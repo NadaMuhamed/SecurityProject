@@ -74,7 +74,6 @@ namespace SecurityLibrary
                     {
                         menna_map[temp[i]] = i + 1;
                     }
-                    //menna_idx.Sort();
                     foreach (int idx in menna_idx)
                     {
                         key.Add(menna_map[idx]);
