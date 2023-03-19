@@ -8,7 +8,6 @@ namespace SecurityLibrary
 {
     public class MatricesHelper
     {
-        
         public List<int> StrMap(string s)
         {
             s = s.ToLower();
@@ -156,16 +155,24 @@ namespace SecurityLibrary
         }
         public List<List<int>> Inverse(List<List<int>> matrix)
         {
-            if(matrix.Count == 2)
+            int det = Mod(Det(matrix), 26);
+            if (matrix.Count == 2)
             {
                 matrix[0][1] *= -1;
                 matrix[1][0] *= -1;
                 int temp = matrix[0][0];
                 matrix[0][0] = matrix[1][1];
                 matrix[1][1] = temp;
+                for(int j = 0; j < matrix.Count;j++)
+                {
+                    for(int i = 0; i < matrix[j].Count;i++)
+                    {
+                        matrix[j][i] = Mod(matrix[j][i]*det, 26);
+                    }
+                }
                 return matrix;
             }
-            int det = Mod(Det(matrix),26);
+            
             int b = 0;
             bool workable = false;
             if (GCD(det, 26) == 1 && det != 0)
