@@ -323,12 +323,19 @@ namespace SecurityLibrary.AES
             }
             return result;
         }
-        public string InitialKey(string[,] state, string[,] cipherkey)
+        public string[,] InitialKey(string[,] state, string[,] cipherkey)
         {
+            string[,] result = new string[4, 4];
 
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    result[i, j] = BinToHex(xor(HexToBin(state[i, j]), HexToBin(cipherkey[i, j]))).PadLeft(2, '0');
+                }
+            }
 
-
-            return null;
+            return result;
         }
         
     }
