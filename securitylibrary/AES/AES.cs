@@ -20,15 +20,6 @@ namespace SecurityLibrary.AES
         {
             throw new NotImplementedException();
         }
-        public string strToBinary(string s)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach(char c in s)
-            {
-                stringBuilder.Append(Convert.ToString(c,2).PadLeft(8,'0'));
-            }
-            return stringBuilder.ToString();
-        }
         public string binToString(string s)
         {
             List<Byte> byteList = new List<Byte>();
