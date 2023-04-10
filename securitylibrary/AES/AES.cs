@@ -30,7 +30,7 @@ namespace SecurityLibrary.AES
             Matkey = convertStringToMat(keys[10]);
 
             Matcipher = stateXORcipherkey(Matcipher, Matkey);
-            Matcipher = shift_rows(Matcipher);
+            Matcipher = inverse_shift_rows(Matcipher);
             Matcipher = sub_byte(Matcipher, InvSBOXbuilder);
             for (int i = 9; i > 0; i--)
             {
@@ -401,6 +401,32 @@ namespace SecurityLibrary.AES
             state[r, 3] = temp3;
             return state;
         }
+        public string[,] inverse_shift_rows(string[,] state)
+        {
+            int r = 1;
+            string temp = state[r, 3];
+            state[r, 3] = state[r, 2];
+            state[r, 2] = state[r, 1];
+            state[r, 1] = state[r, 0];
+            state[r, 0] = temp;
+            r++;
+            temp = state[r, 3];
+            string temp2 = state[r, 2];
+            state[r, 3] = state[r, 1];
+            state[r, 2] = state[r, 0];
+            state[r, 1] = temp;
+            state[r, 0] = temp2;
+            r++;
+            temp = state[r, 1];
+            temp2 = state[r, 2];
+            string temp3 = state[r, 3];
+
+            state[r, 3] = state[r, 0];
+            state[r, 2] = temp3;
+            state[r, 1] = temp2;
+            state[r, 0] = temp;
+            return state;
+        }
         public string[,] MixColumn(string[,] state, Func<string[,]> ConstMatrix)
         {
             string[,] constant = ConstMatrix();
@@ -460,7 +486,6 @@ namespace SecurityLibrary.AES
 
 
         /*
-        invers shift rows
         convertStringToMat
          
          */
