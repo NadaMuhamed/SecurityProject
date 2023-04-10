@@ -39,7 +39,6 @@ namespace SecurityLibrary.AES
             }
             return Encoding.ASCII.GetString(byteList.ToArray());
         }
-        
         public string xor(string mat1,string mat2)
         {
             string str1 = strToBinary(mat1);
@@ -57,10 +56,6 @@ namespace SecurityLibrary.AES
                 }
             }
             return xOR;
-        }
-        public string rotat(string mat)
-        {
-            return mat;
         }
         public int convert_to_int(char stat)
         {
@@ -82,44 +77,6 @@ namespace SecurityLibrary.AES
                     return Convert.ToInt32(stat.ToString());
             }
             
-        }
-        public string key_gen(string key,int iteration)
-        {
-            string[,] key_matrix = new string[4,4];
-            int chunk = 0;
-            int row = -1;
-            for(int i = 0; i < 16; i++)
-            {
-                if(i % 4 == 0)
-                {
-                    row++;
-                }
-                string temp = "";
-                temp += key[chunk + 2];
-                temp += key[chunk + 3];
-                chunk += 2;
-                key_matrix[row,i%4] = temp;
-            }
-            
-
-            string[,] Round_mat = new string[4, 10]
-            {
-                {  "01", "02", "04", "08", "10", "20", "40", "80", "1b", "36"},
-
-                {  "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"},
-
-                {  "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"},
-
-                {  "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"}
-
-            };
-            List<string[,]> keys = new List<string[,]>();
-            for(int i = 0; i < 10; i++)
-            {
-
-            }
-
-            return null;
         }
 
         public string[,] SBOXbuilder()
@@ -312,7 +269,7 @@ namespace SecurityLibrary.AES
             Console.WriteLine(result);
             return result;
         }
-        public string[,] MixCol(string[,] state, string[,] constant)
+        public string[,] MixColumn(string[,] state, string[,] constant)
         {
             string[,] result = new string[4, 4];
             for (int k = 0; k < 4; k++)
@@ -330,17 +287,38 @@ namespace SecurityLibrary.AES
             }
             return result;
         }
-        public string[,] AddRoundKey(string[,] state, string[,] key)
+        public string[,] AddRoundKey(string[,] state, string[,] RCon,int Iteration)
         {
+            string[,] sbox = SBOXbuilder();
             string[,] result = new string[4, 4];
+            string[] rot = new string[4];
+
+            rot[0] = sbox[convert_to_int(state[3, 1][0]), convert_to_int(state[3, 1][1])];
+            rot[1] = sbox[convert_to_int(state[3, 2][0]), convert_to_int(state[3, 2][1])];
+            rot[2] = sbox[convert_to_int(state[3, 3][0]), convert_to_int(state[3, 3][1])];
+            rot[3] = sbox[convert_to_int(state[3, 0][0]), convert_to_int(state[3, 0][1])];
             for(int i = 0; i < 4; i++)
+            {
+                result[0, i] = BinToHex(xor(HexToBin(rot[i]), xor(HexToBin(state[0, i]), HexToBin(RCon[Iteration, i])))).PadLeft(2, '0');
+            }
+
+
+            for (int i = 1; i < 4; i++)
             {
                 for(int j = 0; j < 4; j++)
                 {
-                    result[i,j] = BinToHex(xor(HexToBin(state[i, j]), HexToBin(key[i, j]))).PadLeft(2,'0');
+                    result[i,j] = BinToHex(xor(HexToBin(state[i, j]), HexToBin(result[0, j]))).PadLeft(2,'0');
                 }
             }
             return result;
         }
+        public string InitialKey(string[,] state, string[,] cipherkey)
+        {
+
+
+
+            return null;
+        }
+        
     }
 }
