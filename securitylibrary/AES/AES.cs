@@ -83,11 +83,13 @@ namespace SecurityLibrary.AES
         {
             string[,] Matriex = new string[4, 4];
             int index =2;
+         
             for(int i=0;i<4;i++)
             {
                 for(int j=0;j<4;j++)
                 {
-                     Matriex[i, j] = str[index] + str[index + 1];
+                    Matriex[i, j] = "";
+                    Matriex[i, j] +=( str[i] + str[i + 1]);
                     index += 2;
 
 
@@ -446,7 +448,7 @@ namespace SecurityLibrary.AES
             }
             return result;
         }
-        public string[,] AddRoundKey(string[,] cipherKey,int Iteration)
+        public string[,] AddRoundKey(string[,] cipherKey, int Iteration)
         {
             string[,] RCON = new string[4, 10]
             {
@@ -463,21 +465,25 @@ namespace SecurityLibrary.AES
             string[,] result = new string[4, 4];
             string[] rot = new string[4];
 
-            rot[0] = sbox[convert_to_int(cipherKey[3, 1][0]), convert_to_int(cipherKey[3, 1][1])];
-            rot[1] = sbox[convert_to_int(cipherKey[3, 2][0]), convert_to_int(cipherKey[3, 2][1])];
+            rot[0] = sbox[convert_to_int(cipherKey[1, 3][0]), convert_to_int(cipherKey[1, 3][1])];
+            rot[1] = sbox[convert_to_int(cipherKey[2, 3][0]), convert_to_int(cipherKey[2, 3][1])];
             rot[2] = sbox[convert_to_int(cipherKey[3, 3][0]), convert_to_int(cipherKey[3, 3][1])];
-            rot[3] = sbox[convert_to_int(cipherKey[3, 0][0]), convert_to_int(cipherKey[3, 0][1])];
-            for(int i = 0; i < 4; i++)
+            rot[3] = sbox[convert_to_int(cipherKey[0, 3][0]), convert_to_int(cipherKey[0, 3][1])];
+            for (int i = 0; i < 4; i++)
             {
-                result[0, i] = BinToHex(xor(HexToBin(rot[i]), xor(HexToBin(cipherKey[0, i]), HexToBin(RCON[Iteration, i])))).PadLeft(2, '0');
+                string temp = "00000000";
+                temp = xor(temp, HexToBin(cipherKey[i, 0]));
+                temp = xor(temp, HexToBin(rot[i]));
+                temp = xor(temp, HexToBin(RCON[i, Iteration]));
+                result[i, 0] = BinToHex(temp).PadLeft(2, '0');
             }
 
 
             for (int i = 1; i < 4; i++)
             {
-                for(int j = 0; j < 4; j++)
+                for (int j = 0; j < 4; j++)
                 {
-                    result[i,j] = BinToHex(xor(HexToBin(cipherKey[i, j]), HexToBin(result[0, j]))).PadLeft(2,'0');
+                    result[j, i] = BinToHex(xor(HexToBin(cipherKey[j, i]), HexToBin(result[j, i - 1]))).PadLeft(2, '0');
                 }
             }
             return result;
@@ -485,9 +491,5 @@ namespace SecurityLibrary.AES
 
 
 
-        /*
-        convertStringToMat
-         
-         */
     }
 }
