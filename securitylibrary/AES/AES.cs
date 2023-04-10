@@ -287,19 +287,30 @@ namespace SecurityLibrary.AES
             }
             return result;
         }
-        public string[,] AddRoundKey(string[,] state, string[,] RCon,int Iteration)
+        public string[,] AddRoundKey(string[,] cipherKey,int Iteration)
         {
+            string[,] RCON = new string[4, 10]
+            {
+                  {  "01", "02", "04", "08", "10", "20", "40", "80", "1b", "36"},
+
+                  {  "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"},
+
+                  {  "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"},
+
+                  {  "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"}
+
+            };
             string[,] sbox = SBOXbuilder();
             string[,] result = new string[4, 4];
             string[] rot = new string[4];
 
-            rot[0] = sbox[convert_to_int(state[3, 1][0]), convert_to_int(state[3, 1][1])];
-            rot[1] = sbox[convert_to_int(state[3, 2][0]), convert_to_int(state[3, 2][1])];
-            rot[2] = sbox[convert_to_int(state[3, 3][0]), convert_to_int(state[3, 3][1])];
-            rot[3] = sbox[convert_to_int(state[3, 0][0]), convert_to_int(state[3, 0][1])];
+            rot[0] = sbox[convert_to_int(cipherKey[3, 1][0]), convert_to_int(cipherKey[3, 1][1])];
+            rot[1] = sbox[convert_to_int(cipherKey[3, 2][0]), convert_to_int(cipherKey[3, 2][1])];
+            rot[2] = sbox[convert_to_int(cipherKey[3, 3][0]), convert_to_int(cipherKey[3, 3][1])];
+            rot[3] = sbox[convert_to_int(cipherKey[3, 0][0]), convert_to_int(cipherKey[3, 0][1])];
             for(int i = 0; i < 4; i++)
             {
-                result[0, i] = BinToHex(xor(HexToBin(rot[i]), xor(HexToBin(state[0, i]), HexToBin(RCon[Iteration, i])))).PadLeft(2, '0');
+                result[0, i] = BinToHex(xor(HexToBin(rot[i]), xor(HexToBin(cipherKey[0, i]), HexToBin(RCON[Iteration, i])))).PadLeft(2, '0');
             }
 
 
@@ -307,7 +318,7 @@ namespace SecurityLibrary.AES
             {
                 for(int j = 0; j < 4; j++)
                 {
-                    result[i,j] = BinToHex(xor(HexToBin(state[i, j]), HexToBin(result[0, j]))).PadLeft(2,'0');
+                    result[i,j] = BinToHex(xor(HexToBin(cipherKey[i, j]), HexToBin(result[0, j]))).PadLeft(2,'0');
                 }
             }
             return result;
