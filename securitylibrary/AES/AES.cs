@@ -41,12 +41,10 @@ namespace SecurityLibrary.AES
         }
         public string xor(string mat1,string mat2)
         {
-            string str1 = strToBinary(mat1);
-            string str2 = strToBinary(mat2);
             string xOR = "";
-            for(int i = 0; i < str1.Length; i++)
+            for (int i = 0; i < mat1.Length; i++)
             {
-                if (str1[i] != str2[i])
+                if (mat1[i] != mat2[i])
                 {
                     xOR += '1';
                 }
@@ -78,7 +76,6 @@ namespace SecurityLibrary.AES
             }
             
         }
-
         public string[,] SBOXbuilder()
         {
             string[,] SBOX = new string[16, 16] {
@@ -100,7 +97,6 @@ namespace SecurityLibrary.AES
            {"0x8c","0xa1","0x89","0x0d","0xbf","0xe6","0x42","0x68","0x41","0x99","0x2d","0x0f","0xb0","0x54","0xbb","0x16" } };
             return SBOX;
         }
-
         public string[,] StateGenerator(string s)
         {
             string[,] state = new string[4, 4];
@@ -118,53 +114,10 @@ namespace SecurityLibrary.AES
             }
             return state;
         }
-        
-        public string[,] sub_byte(string[,] state)
-        {
-            string[,] sbox = SBOXbuilder();
-            string[,] stateByte = new string[4,4];
-            for(int i = 0; i < 4; i++)
-            {
-                for(int j = 0; j < 4; j++)
-                {
-                    int row = convert_to_int(state[i, j][0]);
-                    int col = convert_to_int(state[i, j][1]);
-                    stateByte[i,j] = sbox[row,col];
-                }
-            }
-            return stateByte;
-        }
-        public string[,] shift_rows(string[,] state)
-        {
-            int r = 1;
-            string temp = state[r, 0];
-            state[r, 0] = state[r, 1];
-            state[r,1] = state[r,2];
-            state[r,2] = state[r,3];
-            state[r,3] = temp;
-            r++;
-            temp = state[r,0];
-            string temp2 = state[r,1];
-            state[r, 0] = state[r, 2];
-            state[r,1] = state[r,3];
-            state[r, 2] = temp;
-            state[r, 3] = temp2;
-            r++;
-            temp = state[r, 0];
-            temp2 = state[r, 1];
-            string temp3 = state[r,2];
-            state[r, 0] = state[r, 3];
-            state[r, 1] = temp;
-            state[r, 2] = temp2;
-            state[r, 3] = temp3;
-            return state;
-        }
-        
         public string HexToBin(string hex)
         {
             return Convert.ToString(Convert.ToInt32(hex, 16), 2).PadLeft(8, '0');
         }
-
         public string BinToHex(string bin)
         {
             return Convert.ToInt32(bin, 2).ToString("X");
@@ -269,6 +222,48 @@ namespace SecurityLibrary.AES
             Console.WriteLine(result);
             return result;
         }
+
+
+        public string[,] sub_byte(string[,] state)
+        {
+            string[,] sbox = SBOXbuilder();
+            string[,] stateByte = new string[4, 4];
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    int row = convert_to_int(state[i, j][0]);
+                    int col = convert_to_int(state[i, j][1]);
+                    stateByte[i, j] = sbox[row, col];
+                }
+            }
+            return stateByte;
+        }
+        public string[,] shift_rows(string[,] state)
+        {
+            int r = 1;
+            string temp = state[r, 0];
+            state[r, 0] = state[r, 1];
+            state[r, 1] = state[r, 2];
+            state[r, 2] = state[r, 3];
+            state[r, 3] = temp;
+            r++;
+            temp = state[r, 0];
+            string temp2 = state[r, 1];
+            state[r, 0] = state[r, 2];
+            state[r, 1] = state[r, 3];
+            state[r, 2] = temp;
+            state[r, 3] = temp2;
+            r++;
+            temp = state[r, 0];
+            temp2 = state[r, 1];
+            string temp3 = state[r, 2];
+            state[r, 0] = state[r, 3];
+            state[r, 1] = temp;
+            state[r, 2] = temp2;
+            state[r, 3] = temp3;
+            return state;
+        }
         public string[,] MixColumn(string[,] state, string[,] constant)
         {
             string[,] result = new string[4, 4];
@@ -321,20 +316,6 @@ namespace SecurityLibrary.AES
                     result[i,j] = BinToHex(xor(HexToBin(cipherKey[i, j]), HexToBin(result[0, j]))).PadLeft(2,'0');
                 }
             }
-            return result;
-        }
-        public string[,] InitialKey(string[,] state, string[,] cipherkey)
-        {
-            string[,] result = new string[4, 4];
-
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    result[i, j] = BinToHex(xor(HexToBin(state[i, j]), HexToBin(cipherkey[i, j]))).PadLeft(2, '0');
-                }
-            }
-
             return result;
         }
         
