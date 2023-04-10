@@ -44,7 +44,7 @@ namespace SecurityLibrary.AES
 
             Matcipher = stateXORcipherkey(Matcipher, Matkey);
             plantext = convertMatToString(Matkey);
-            return plantext;
+            return "0x" + plantext;
         }
 
         public override string Encrypt(string plainText, string key)
@@ -84,12 +84,13 @@ namespace SecurityLibrary.AES
             string[,] Matriex = new string[4, 4];
             int index =2;
          
-            for(int i=0;i<4;i++)
+            for(int j=0;j<4;j++)
             {
-                for(int j=0;j<4;j++)
+                for(int i=0;i<4;i++)
                 {
                     Matriex[i, j] = "";
-                    Matriex[i, j] +=( str[i] + str[i + 1]);
+                    Matriex[i, j] += str[index];
+                    Matriex[i, j] += str[index + 1];
                     index += 2;
 
 
@@ -124,6 +125,7 @@ namespace SecurityLibrary.AES
         public string xor(string mat1, string mat2)
         {
             string xOR = "";
+            mat2 = mat2.PadLeft(mat1.Length, '0');
             for (int i = 0; i < mat1.Length; i++)
             {
                 if (mat1[i] != mat2[i])
@@ -139,6 +141,7 @@ namespace SecurityLibrary.AES
         }
         public int convert_to_int(char stat)
         {
+            stat = stat.ToString().ToLower()[0];
             switch (stat)
             {
                 case 'a':
