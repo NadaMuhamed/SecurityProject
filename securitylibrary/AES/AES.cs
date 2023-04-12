@@ -14,38 +14,29 @@ namespace SecurityLibrary.AES
     {
         public override string Decrypt(string cipherText, string key)
         {
-            string plantext;
-            key = key.ToLower();
-            cipherText = cipherText.ToLower();
-            string[] keys = new string[11];
-            string[,] Matcipher = new string[4, 4];
-            string[,] Matkey = new string[4, 4];
-            Matcipher = convertStringToMat(cipherText);
-            Matkey = convertStringToMat(key);
-            keys[0] = key;
-            for (int i = 1; i <1; i++)
+            string[,] Matplain = convertStringToMat(cipherText);
+            string[,] Matkey = convertStringToMat(key);
+            List<string[,]> Keys = new List<string[,]>();
+            Keys.Add(Matkey);
+            for (int i = 0; i < 10; i++)
             {
-                Matkey = AddRoundKey(Matkey, i-1);
-                keys[i] = convertMatToString(Matkey);
+                Matkey = AddRoundKey(Matkey, i);
+                Keys.Add(Matkey);
             }
-            Matkey = convertStringToMat(keys[10]);
-
-            Matcipher = stateXORcipherkey(Matcipher, Matkey);
-            Matcipher = inverse_shift_rows(Matcipher);
-            Matcipher = sub_byte(Matcipher, InvSBOXbuilder);
-            for (int i = 9; i > 0; i--)
+            string[,] stat = stateXORcipherkey(Matplain, Keys[10]);
+            for (int i = 9; i >= 1; i--)
             {
-                Matkey = convertStringToMat(keys[i]);
-                Matcipher = stateXORcipherkey(Matcipher, Matkey);
-                Matcipher = MixColumn(Matcipher, InvMixCon);
-                Matcipher = shift_rows(Matcipher);
-                Matcipher = sub_byte(Matcipher, InvSBOXbuilder);
-
+                stat = inverse_shift_rows(stat);
+                stat = sub_byte(stat, InvSBOXbuilder);
+                stat = stateXORcipherkey(stat, Keys[i]);
+                stat = MixColumn(stat, InvMixCon);
             }
+            stat = inverse_shift_rows(stat);
+            stat = sub_byte(stat, InvSBOXbuilder);
+            stat = stateXORcipherkey(stat, Keys[0]);
+            string str = convertMatToString(stat);
+            return str;
 
-            Matcipher = stateXORcipherkey(Matcipher, Matkey);
-            plantext = convertMatToString(Matkey);
-            return "0x" + plantext;
         }
 
         public override string Encrypt(string plainText, string key)
@@ -220,7 +211,52 @@ namespace SecurityLibrary.AES
         {
             return Convert.ToInt32(bin, 2).ToString("X");
         }
-        public  string GFMultiplier(string state, string constMatrix)
+        public List<int> SimplifyCoef(List<int> newSCoef)
+        {
+            HashSet<int> sCoefSet = new HashSet<int>(newSCoef);
+            Dictionary<int, int> map = new Dictionary<int, int>();
+            foreach (int c in newSCoef)
+            {
+                if (map.ContainsKey(c))
+                {
+                    map[c]++;
+                }
+                else
+                {
+                    map[c] = 1;
+                }
+            }
+            List<int> newCoef = new List<int>();
+            foreach (int c in sCoefSet)
+            {
+                if (map[c] % 2 != 0)
+                {
+                    newCoef.Add(c);
+                }
+            }
+            return newCoef;
+        }
+        public List<int> Replace(List<int> ls)
+        {
+            List<int> replaced = new List<int>();
+            int[] mapper = { 4, 3, 1, 0 };
+            foreach (int item in ls)
+            {
+                if (item > 7)
+                {
+                    foreach (int i in mapper)
+                    {
+                        replaced.Add(i + (item - 8));
+                    }
+                }
+                else
+                {
+                    replaced.Add(item);
+                }
+            }
+            return replaced;
+        }
+        public  string GFMultiplier(string constMatrix, string state)
         {
             string sBin = HexToBin(state);
             string cBin = HexToBin(constMatrix);
@@ -249,66 +285,18 @@ namespace SecurityLibrary.AES
                 }
             }
             HashSet<int> sCoefSet = new HashSet<int>(newSCoef);
-            foreach (int coef in sCoefSet)
-            {
-                List<int> tempIdx = new List<int>();
-                for (int i = 0; i < newSCoef.Count; i++)
-                {
-                    if (newSCoef[i] == coef)
-                    {
-                        tempIdx.Add(i);
-                    }
-                }
-                if (tempIdx.Count > 1)
-                {
-                    if (tempIdx.Count % 2 == 0)
-                    {
-                        for (int j = 0; j < tempIdx.Count; j++)
-                        {
-                            newSCoef.Remove(coef);
-                        }
-                    }
-                    else
-                    {
-                        for (int j = 0; j < tempIdx.Count - 1; j++)
-                        {
-                            newSCoef.Remove(coef);
-                        }
-                    }
-                }
-            }
-
-
-            int[] checker = { 4, 3, 1, 0 };
-
-            if (newSCoef[0] > 7)
-            {
-                foreach (int check in checker)
-                {
-                    bool found = false;
-                    for (int i = 0; i < newSCoef.Count; i++)
-                    {
-                        if (newSCoef[i] == check)
-                        {
-                            found = true;
-                            newSCoef.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        newSCoef.Add(check);
-                    }
-                }
-                newSCoef.RemoveAt(0);
-            }
+            newSCoef = Replace(newSCoef);
+            newSCoef = SimplifyCoef(newSCoef);
 
             string result = "00000000";
             StringBuilder sb = new StringBuilder(result);
 
             foreach (int scoef in newSCoef)
             {
-                sb[7 - scoef] = '1';
+                if (scoef < 8)
+                {
+                    sb[7 - scoef] = '1';
+                }
             }
             result = sb.ToString();
             return result;
@@ -427,7 +415,7 @@ namespace SecurityLibrary.AES
                     string res = "00000000";
                     for (int j = 0; j < 4; j++)
                     {
-                        string temp = GFMultiplier(state[j, k], constant[i, j]);
+                        string temp = GFMultiplier(constant[i, j], state[j, k]);
                         res = xor(temp, res);
                     }
                     result[i, k] = BinToHex(res).PadLeft(2, '0');
