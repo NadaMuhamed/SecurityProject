@@ -1,11 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SecurityLibrary.DiffieHellman;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-
+using SecurityLibrary.DiffieHellman;
 namespace SecurityPackageTest
 {
+
     [TestClass]
-    public class DeffieHelmanTest
+    public class DiffieHellmanTest
     {
         [TestMethod]
         public void DeffieHelmanTest1()
@@ -44,3 +45,4 @@ namespace SecurityPackageTest
         }
     }
 }
+
