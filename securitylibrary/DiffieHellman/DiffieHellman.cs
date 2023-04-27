@@ -8,27 +8,35 @@ namespace SecurityLibrary.DiffieHellman
 {
     public class DiffieHellman 
     {
-        public int mod(int a, int b, int c)
-        {
-            int result = 1;
-            for (int i = 0; i < b; i++)
-                result = (result * a) % c;
-            
-            return result;
-        }
+
         public List<int> GetKeys(int q, int alpha, int xa, int xb)
         { 
-            List<int> result = new List<int>();
+            List<int> results = new List<int>();
+            int result = 1;
+
             int p = alpha;
             int ya, yb;
             int K1, K2;
-            ya = mod(p, xa, q);
-            yb = mod(p, xb, q);
-            K1 = mod(yb, xa, q);
-            K2 = mod(ya, xb, q);
-            result.Add(K1);
-            result.Add(K2);
-            return result;
+
+            for (int i = 0; i < xa; i++)
+                result = (result * p) % q;
+            ya=result;
+            result=1;
+            for (int i = 0; i < xb; i++)
+                result = (result * p) % q;
+            yb=result;
+            result=1;
+            for (int i = 0; i < xa; i++)
+                result = (result * yb) % q;
+            k1 = result;
+            result = 1;
+            for (int i = 0; i < xb; i++)
+                result = (result * ya) % q;
+            k1 = result;
+            result = 1;
+            results.Add(K1);
+            results.Add(K2);
+            return results;
         }
     }
 }
