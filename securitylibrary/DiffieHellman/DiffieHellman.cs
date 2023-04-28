@@ -28,11 +28,11 @@ namespace SecurityLibrary.DiffieHellman
             result=1;
             for (int i = 0; i < xa; i++)
                 result = (result * yb) % q;
-            k1 = result;
+            K1 = result;
             result = 1;
             for (int i = 0; i < xb; i++)
                 result = (result * ya) % q;
-            k1 = result;
+            K2 = result;
             result = 1;
             results.Add(K1);
             results.Add(K2);
